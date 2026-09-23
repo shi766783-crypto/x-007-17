@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { read, write } from '@/utils/storage'
 import { uid } from '@/utils/id'
-import { currentWeekKey } from '@/utils/date'
+import { currentWeekKey, currentWeekStart, toDateKey } from '@/utils/date'
 import { WEEK_DAYS, MEALS } from '@/constants'
 
 const DISH_KEY = 'dishes'
@@ -163,6 +163,62 @@ export const useMealPlanStore = defineStore('mealPlan', {
       if (!week) return
       week[dayKey][mealKey(meal)] = []
       this.persistPlan()
+    },
+
+    // 查询菜品在指定周已安排的餐次（用于避免重复推荐）
+    findDishSlots(weekKey, dishId) {
+      const week = this.plan[weekKey]
+      if (!week) return []
+      const slots = []
+      WEEK_DAYS.forEach((d) => {
+        MEALS.forEach((m) => {
+          if (week[d.key][mealKey(m)].includes(dishId)) {
+            slots.push({ day: d.key, dayLabel: d.label, meal: m })
+          }
+        })
+      })
+      return slots
+    },
+
+    // 一键安排：从今天起找第一个未包含该菜的空餐次（优先今天，越早越好）；
+    // 本周餐次都占满时追加到今天的晚餐。返回安排位置信息。
+    scheduleDishThisWeek(dishId, today = new Date()) {
+      const key = currentWeekKey(today)
+      const week = this.plan[key] || (this.plan[key] = emptyWeek())
+
+      const todayKey = toDateKey(today)
+      const weekDates = WEEK_DAYS.map((d, i) => {
+        const start = new Date(currentWeekStart(today))
+        start.setDate(start.getDate() + i)
+        return { day: d.key, label: d.label, dateKey: toDateKey(start) }
+      })
+      const todayIdx = Math.max(0, weekDates.findIndex((d) => d.dateKey === todayKey))
+      const orderedDays = [
+        ...weekDates.slice(todayIdx),
+        ...weekDates.slice(0, todayIdx),
+      ]
+
+      for (const d of orderedDays) {
+        for (const meal of MEALS) {
+          const k = mealKey(meal)
+          const slot = week[d.day][k]
+          if (slot.includes(dishId)) {
+            this.persistPlan()
+            return { weekKey: key, day: d.day, dayLabel: d.label, meal, duplicated: true }
+          }
+          if (slot.length === 0) {
+            slot.push(dishId)
+            this.persistPlan()
+            return { weekKey: key, day: d.day, dayLabel: d.label, meal, duplicated: false }
+          }
+        }
+      }
+
+      // 没有空餐次：追加到今天的晚餐（能走到这里说明本周未排过此菜）
+      const todayDay = weekDates[todayIdx]
+      week[todayDay.day].dinner.push(dishId)
+      this.persistPlan()
+      return { weekKey: key, day: todayDay.day, dayLabel: todayDay.label, meal: '晚餐', duplicated: false }
     },
   },
 })
