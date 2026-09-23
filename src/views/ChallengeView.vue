@@ -51,6 +51,11 @@ function fmt(iso) {
 
     <p class="muted">选择临期/过期食材，做一道菜吃掉它，完成后打卡获得 <b>{{ CHALLENGE_POINTS }} 积分</b>！</p>
 
+    <div v-if="candidates.length" class="match-banner">
+      <span>🍳 不知道能做什么？根据临期食材自动匹配已有菜谱，一键安排进计划</span>
+      <router-link to="/recipe-match" class="match-link">去匹配 →</router-link>
+    </div>
+
     <BaseEmpty v-if="!candidates.length" emoji="🧊" text="没有需要清理的临期/过期食材，冰箱很干净！" />
 
     <div v-else class="grid grid-2">
@@ -111,6 +116,24 @@ function fmt(iso) {
   padding: 6px 14px;
   border-radius: 20px;
   font-weight: 600;
+}
+.match-banner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  flex-wrap: wrap;
+  background: var(--primary-light);
+  border: 1px solid var(--primary);
+  border-radius: 10px;
+  padding: 10px 14px;
+  margin-bottom: 14px;
+  font-size: 13px;
+  color: var(--primary-dark);
+}
+.match-link {
+  font-weight: 600;
+  white-space: nowrap;
 }
 .challenge {
   display: flex;

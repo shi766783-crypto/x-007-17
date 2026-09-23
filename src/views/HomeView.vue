@@ -43,7 +43,10 @@ const priority = computed(() =>
     <div class="card">
       <div class="section-title">
         <span>⚠️ 优先消耗清单</span>
-        <router-link to="/challenge" class="link">去清理 →</router-link>
+        <span class="head-links">
+          <router-link to="/recipe-match" class="link">🍳 菜谱匹配 →</router-link>
+          <router-link to="/challenge" class="link">去清理 →</router-link>
+        </span>
       </div>
       <BaseEmpty v-if="!priority.length" emoji="🎉" text="暂无临期或过期食材，库存很健康！" />
       <div v-else class="priority-list">
@@ -66,7 +69,10 @@ const priority = computed(() =>
               {{ item.quantity }}{{ item.unit }} · {{ item.location }} · 过期日 {{ expiryDateKey(item.purchaseDate, item.shelfLifeDays) }}
             </div>
           </div>
-          <router-link to="/challenge" class="btn-use">做菜</router-link>
+          <div class="priority-actions">
+            <router-link to="/recipe-match" class="btn-match">🍳 找菜谱</router-link>
+            <router-link to="/challenge" class="btn-use">做菜</router-link>
+          </div>
         </div>
       </div>
     </div>
@@ -170,6 +176,23 @@ const priority = computed(() =>
 }
 .meta {
   font-size: 12px;
+}
+.head-links {
+  display: flex;
+  gap: 12px;
+}
+.priority-actions {
+  display: flex;
+  gap: 6px;
+  flex-shrink: 0;
+}
+.btn-match {
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
 }
 .btn-use {
   background: var(--primary);

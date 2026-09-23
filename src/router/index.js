@@ -4,6 +4,7 @@ const routes = [
   { path: '/', name: 'home', component: () => import('@/views/HomeView.vue'), meta: { title: '首页' } },
   { path: '/inventory', name: 'inventory', component: () => import('@/views/InventoryView.vue'), meta: { title: '食材库存' } },
   { path: '/meal-plan', name: 'meal-plan', component: () => import('@/views/MealPlanView.vue'), meta: { title: '每周食谱计划' } },
+  { path: '/recipe-match', name: 'recipe-match', component: () => import('@/views/RecipeMatchView.vue'), meta: { title: '菜谱匹配' } },
   { path: '/shopping', name: 'shopping', component: () => import('@/views/ShoppingListView.vue'), meta: { title: '采购清单' } },
   { path: '/diet', name: 'diet', component: () => import('@/views/DietRecordView.vue'), meta: { title: '每日饮食记录' } },
   { path: '/dashboard', name: 'dashboard', component: () => import('@/views/DashboardView.vue'), meta: { title: '饮食看板' } },
